@@ -3,14 +3,40 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+  <meta name="theme-color" content="#16a34a">
   <title>Shopping List</title>
   <style>
+    :root {
+      --bg: #f4f4f5;
+      --card: #ffffff;
+      --text: #18181b;
+      --muted: #a1a1aa;
+      --muted2: #52525b;
+      --border: #d4d4d8;
+      --accent: #16a34a;
+      --accent-dark: #15803d;
+      --danger: #dc2626;
+      --chip: #e4e4e7;
+    }
+
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --bg: #18181b;
+        --card: #27272a;
+        --text: #f4f4f5;
+        --muted: #71717a;
+        --muted2: #a1a1aa;
+        --border: #3f3f46;
+        --chip: #3f3f46;
+      }
+    }
+
     * { margin: 0; padding: 0; box-sizing: border-box; }
 
     body {
       font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-      background: #f4f4f5;
-      color: #18181b;
+      background: var(--bg);
+      color: var(--text);
       min-height: 100vh;
     }
 
@@ -22,73 +48,150 @@
 
     h1 {
       font-size: 1.4rem;
-      padding: 12px 4px;
+      padding: 12px 4px 2px;
       text-align: center;
+    }
+
+    .subtitle {
+      text-align: center;
+      color: var(--muted);
+      font-size: 0.85rem;
+      margin-bottom: 14px;
     }
 
     form {
       display: flex;
       gap: 8px;
-      margin-bottom: 16px;
+      margin-bottom: 12px;
     }
 
-    input[type="text"] {
-      flex: 1;
+    input[type="text"], input[type="number"] {
       padding: 14px;
       font-size: 1rem;
-      border: 1px solid #d4d4d8;
+      border: 1px solid var(--border);
       border-radius: 10px;
       outline: none;
-      background: #fff;
+      background: var(--card);
+      color: var(--text);
     }
 
-    input[type="text"]:focus { border-color: #16a34a; }
+    input[type="text"] { flex: 1; min-width: 0; }
+
+    input[type="number"] {
+      width: 64px;
+      text-align: center;
+      padding: 14px 6px;
+    }
+
+    input:focus { border-color: var(--accent); }
 
     button.add {
-      padding: 14px 20px;
+      padding: 14px 18px;
       font-size: 1rem;
       font-weight: 600;
       border: none;
       border-radius: 10px;
-      background: #16a34a;
+      background: var(--accent);
       color: #fff;
       cursor: pointer;
     }
 
-    button.add:active { background: #15803d; }
+    button.add:active { background: var(--accent-dark); }
+
+    .section-title {
+      font-size: 0.8rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      color: var(--muted);
+      margin: 16px 4px 8px;
+    }
+
+    .chips {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+
+    .chip {
+      border: none;
+      background: var(--chip);
+      color: var(--text);
+      padding: 9px 14px;
+      border-radius: 999px;
+      font-size: 0.9rem;
+      cursor: pointer;
+    }
+
+    .chip small { color: var(--muted2); margin-left: 4px; }
 
     ul { list-style: none; }
 
     li {
       display: flex;
       align-items: center;
-      background: #fff;
+      background: var(--card);
       border-radius: 10px;
       margin-bottom: 8px;
       overflow: hidden;
     }
 
-    li .name {
+    li .main {
       flex: 1;
-      padding: 14px;
-      font-size: 1.05rem;
+      padding: 10px 4px 10px 14px;
       cursor: pointer;
       user-select: none;
       -webkit-user-select: none;
+      min-width: 0;
+    }
+
+    li .name {
+      font-size: 1.05rem;
       word-break: break-word;
+    }
+
+    li .meta {
+      font-size: 0.75rem;
+      color: var(--muted);
+      margin-top: 2px;
     }
 
     li.done .name {
       text-decoration: line-through;
-      color: #a1a1aa;
+      color: var(--muted);
     }
+
+    .qty {
+      display: flex;
+      align-items: center;
+      gap: 2px;
+    }
+
+    .qty button {
+      border: none;
+      background: none;
+      color: var(--muted2);
+      font-size: 1.15rem;
+      width: 34px;
+      height: 44px;
+      cursor: pointer;
+    }
+
+    .qty .n {
+      min-width: 20px;
+      text-align: center;
+      font-size: 0.95rem;
+      font-weight: 600;
+    }
+
+    li.done .qty { visibility: hidden; }
 
     li .delete {
       border: none;
       background: none;
-      color: #dc2626;
+      color: var(--danger);
       font-size: 1.3rem;
-      padding: 14px 16px;
+      padding: 10px 14px;
       cursor: pointer;
     }
 
@@ -97,22 +200,22 @@
       margin: 16px auto 0;
       padding: 10px 18px;
       font-size: 0.9rem;
-      border: 1px solid #d4d4d8;
+      border: 1px solid var(--border);
       border-radius: 10px;
-      background: #fff;
-      color: #52525b;
+      background: var(--card);
+      color: var(--muted2);
       cursor: pointer;
     }
 
     .empty {
       text-align: center;
-      color: #a1a1aa;
+      color: var(--muted);
       padding: 32px 0;
     }
 
     .status {
       text-align: center;
-      color: #dc2626;
+      color: var(--danger);
       font-size: 0.85rem;
       padding: 8px 0;
       display: none;
@@ -122,11 +225,22 @@
 <body>
   <div class="container">
     <h1>🛒 Shopping List</h1>
+    <div class="subtitle" id="subtitle">&nbsp;</div>
     <div class="status" id="status"></div>
+
     <form id="add-form">
-      <input type="text" id="item-input" placeholder="Add something..." autocomplete="off" maxlength="200">
+      <input type="text" id="item-input" placeholder="Add something..." autocomplete="off" maxlength="200" list="suggestions">
+      <datalist id="suggestions"></datalist>
+      <input type="number" id="qty-input" value="1" min="1" max="99" inputmode="numeric" title="How many">
       <button type="submit" class="add">Add</button>
     </form>
+
+    <div id="frequents-section" style="display:none">
+      <div class="section-title">Buy again</div>
+      <div class="chips" id="chips"></div>
+      <div class="section-title">List</div>
+    </div>
+
     <ul id="list"></ul>
     <div class="empty" id="empty" style="display:none">Nothing to buy 🎉</div>
     <button class="clear-done" id="clear-done" style="display:none">Clear bought items</button>
@@ -145,8 +259,13 @@
     const emptyEl = document.getElementById("empty");
     const clearBtn = document.getElementById("clear-done");
     const statusEl = document.getElementById("status");
+    const subtitleEl = document.getElementById("subtitle");
     const form = document.getElementById("add-form");
     const input = document.getElementById("item-input");
+    const qtyInput = document.getElementById("qty-input");
+    const chipsEl = document.getElementById("chips");
+    const frequentsSection = document.getElementById("frequents-section");
+    const suggestionsEl = document.getElementById("suggestions");
 
     let items = [];
 
@@ -156,26 +275,67 @@
       setTimeout(() => (statusEl.style.display = "none"), 4000);
     }
 
+    function timeAgo(dateStr) {
+      const mins = Math.floor((Date.now() - new Date(dateStr).getTime()) / 60000);
+      if (mins < 1) return "just now";
+      if (mins < 60) return mins + "m ago";
+      const hours = Math.floor(mins / 60);
+      if (hours < 24) return hours + "h ago";
+      const days = Math.floor(hours / 24);
+      if (days === 1) return "yesterday";
+      if (days < 7) return days + " days ago";
+      return new Date(dateStr).toLocaleDateString();
+    }
+
     function render() {
       listEl.innerHTML = "";
       for (const item of items) {
         const li = document.createElement("li");
         if (item.done) li.classList.add("done");
 
-        const name = document.createElement("span");
+        const main = document.createElement("div");
+        main.className = "main";
+        main.onclick = () => toggleItem(item);
+
+        const name = document.createElement("div");
         name.className = "name";
         name.textContent = item.name;
-        name.onclick = () => toggleItem(item);
+
+        const meta = document.createElement("div");
+        meta.className = "meta";
+        meta.textContent = "added " + timeAgo(item.created_at);
+
+        main.appendChild(name);
+        main.appendChild(meta);
+
+        const qty = document.createElement("div");
+        qty.className = "qty";
+        const minus = document.createElement("button");
+        minus.textContent = "−";
+        minus.onclick = () => changeAmount(item, -1);
+        const n = document.createElement("span");
+        n.className = "n";
+        n.textContent = item.amount;
+        const plus = document.createElement("button");
+        plus.textContent = "+";
+        plus.onclick = () => changeAmount(item, 1);
+        qty.appendChild(minus);
+        qty.appendChild(n);
+        qty.appendChild(plus);
 
         const del = document.createElement("button");
         del.className = "delete";
         del.textContent = "✕";
         del.onclick = () => deleteItem(item);
 
-        li.appendChild(name);
+        li.appendChild(main);
+        li.appendChild(qty);
         li.appendChild(del);
         listEl.appendChild(li);
       }
+
+      const todo = items.filter(i => !i.done).length;
+      subtitleEl.textContent = todo === 0 ? "All done" : todo + (todo === 1 ? " item to buy" : " items to buy");
       emptyEl.style.display = items.length ? "none" : "block";
       clearBtn.style.display = items.some(i => i.done) ? "block" : "none";
     }
@@ -191,20 +351,56 @@
       render();
     }
 
-    form.onsubmit = async (e) => {
+    async function addItem(name, amount) {
+      // If it's already on the list (not bought yet), bump the quantity instead
+      const existing = items.find(i => !i.done && i.name.toLowerCase() === name.toLowerCase());
+      if (existing) {
+        const { error } = await db.from("items")
+          .update({ amount: existing.amount + amount })
+          .eq("id", existing.id);
+        if (error) showError("Could not update item");
+      } else {
+        const { error } = await db.from("items").insert({ name, amount });
+        if (error) showError("Could not add item");
+      }
+      loadItems();
+    }
+
+    form.onsubmit = (e) => {
       e.preventDefault();
       const name = input.value.trim();
       if (!name) return;
+      const amount = Math.max(1, parseInt(qtyInput.value) || 1);
       input.value = "";
-      const { error } = await db.from("items").insert({ name });
-      if (error) showError("Could not add item");
-      loadItems();
+      qtyInput.value = 1;
+      addItem(name, amount);
     };
+
+    async function changeAmount(item, delta) {
+      const newAmount = item.amount + delta;
+      if (newAmount < 1) return;
+      const { error } = await db.from("items").update({ amount: newAmount }).eq("id", item.id);
+      if (error) showError("Could not update item");
+      loadItems();
+    }
 
     async function toggleItem(item) {
       const { error } = await db.from("items").update({ done: !item.done }).eq("id", item.id);
-      if (error) showError("Could not update item");
+      if (error) { showError("Could not update item"); return; }
+
+      // Keep purchase history for the "Buy again" section
+      if (!item.done) {
+        await db.from("purchases").insert({ name: item.name.trim() });
+      } else {
+        // Un-marked as bought: remove the most recent history entry for it
+        const { data } = await db.from("purchases")
+          .select("id").eq("name", item.name.trim())
+          .order("bought_at", { ascending: false }).limit(1);
+        if (data && data.length) await db.from("purchases").delete().eq("id", data[0].id);
+      }
+
       loadItems();
+      loadFrequents();
     }
 
     async function deleteItem(item) {
@@ -219,12 +415,54 @@
       loadItems();
     };
 
+    async function loadFrequents() {
+      const { data, error } = await db.from("purchases")
+        .select("name")
+        .order("bought_at", { ascending: false })
+        .limit(300);
+      if (error || !data) return;
+
+      // Count how often each thing was bought
+      const counts = {};
+      for (const row of data) {
+        const key = row.name.toLowerCase();
+        counts[key] = counts[key] || { name: row.name, count: 0 };
+        counts[key].count++;
+      }
+      const top = Object.values(counts)
+        .sort((a, b) => b.count - a.count)
+        .slice(0, 8);
+
+      // Autocomplete suggestions while typing
+      suggestionsEl.innerHTML = "";
+      for (const f of Object.values(counts)) {
+        const opt = document.createElement("option");
+        opt.value = f.name;
+        suggestionsEl.appendChild(opt);
+      }
+
+      // "Buy again" chips
+      chipsEl.innerHTML = "";
+      for (const f of top) {
+        const chip = document.createElement("button");
+        chip.className = "chip";
+        chip.textContent = f.name;
+        const count = document.createElement("small");
+        count.textContent = "×" + f.count;
+        chip.appendChild(count);
+        chip.onclick = () => addItem(f.name, 1);
+        chipsEl.appendChild(chip);
+      }
+      frequentsSection.style.display = top.length ? "block" : "none";
+    }
+
     // Live sync: reload whenever anyone changes the list
     db.channel("items-changes")
       .on("postgres_changes", { event: "*", schema: "public", table: "items" }, loadItems)
       .subscribe();
 
     loadItems();
+    loadFrequents();
   </script>
 </body>
 </html>
