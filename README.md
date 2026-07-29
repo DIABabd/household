@@ -2,9 +2,9 @@
 
 A tiny shared shopping list for me and my brother. Add items, tap to mark as bought, changes sync live between phones.
 
-Features: quantities (+/−), "added 2h ago" timestamps, a **Buy again** section that learns what we buy most often, autocomplete from purchase history, duplicate handling (adding the same item bumps the quantity), item counter, dark mode.
+Features: items grouped by store aisle (auto-categorized, tap the emoji to change), quantities (− removes at 0), tap an item to put it "in the cart", suggestion chips from purchase history above the add bar, shopping progress bar, "added 2h ago" timestamps, dark mode, live sync between phones.
 
-Database updates live in numbered `supabase-update-*.sql` files — run each one once in the Supabase SQL Editor (latest: `supabase-update-1.sql`).
+Database updates live in numbered `supabase-update-*.sql` files — run the latest one once in the Supabase SQL Editor (latest: `supabase-update-2.sql`, which also covers update 1).
 
 ## Setup (one time)
 

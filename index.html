@@ -2,9 +2,11 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, viewport-fit=cover">
   <meta name="theme-color" content="#16a34a">
-  <title>Shopping List</title>
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="default">
+  <title>Groceries</title>
   <style>
     :root {
       --bg: #f4f4f5;
@@ -12,106 +14,218 @@
       --text: #18181b;
       --muted: #a1a1aa;
       --muted2: #52525b;
-      --border: #d4d4d8;
+      --border: #e4e4e7;
       --accent: #16a34a;
-      --accent-dark: #15803d;
+      --accent-soft: #dcfce7;
       --danger: #dc2626;
       --chip: #e4e4e7;
+      --overlay: rgba(0,0,0,0.4);
     }
 
     @media (prefers-color-scheme: dark) {
       :root {
-        --bg: #18181b;
-        --card: #27272a;
+        --bg: #131316;
+        --card: #232327;
         --text: #f4f4f5;
-        --muted: #71717a;
+        --muted: #6b6b74;
         --muted2: #a1a1aa;
-        --border: #3f3f46;
-        --chip: #3f3f46;
+        --border: #2e2e33;
+        --accent-soft: #14331e;
+        --chip: #2e2e33;
+        --overlay: rgba(0,0,0,0.6);
       }
     }
 
     * { margin: 0; padding: 0; box-sizing: border-box; }
 
+    html, body { height: 100%; }
+
     body {
       font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
       background: var(--bg);
       color: var(--text);
-      min-height: 100vh;
+      -webkit-tap-highlight-color: transparent;
     }
 
-    .container {
+    .wrap {
       max-width: 480px;
       margin: 0 auto;
-      padding: 16px;
+      padding: 12px 14px 130px; /* room for the bottom bar */
     }
 
-    h1 {
-      font-size: 1.4rem;
-      padding: 12px 4px 2px;
-      text-align: center;
-    }
+    /* ---------- Header ---------- */
+    header { padding: 8px 2px 4px; }
+
+    header h1 { font-size: 1.35rem; }
 
     .subtitle {
-      text-align: center;
       color: var(--muted);
       font-size: 0.85rem;
-      margin-bottom: 14px;
+      margin-top: 2px;
+      min-height: 1.1em;
     }
 
-    form {
-      display: flex;
-      gap: 8px;
-      margin-bottom: 12px;
+    .progress {
+      height: 4px;
+      background: var(--border);
+      border-radius: 4px;
+      margin: 10px 0 4px;
+      overflow: hidden;
     }
 
-    input[type="text"], input[type="number"] {
-      padding: 14px;
-      font-size: 1rem;
-      border: 1px solid var(--border);
-      border-radius: 10px;
-      outline: none;
-      background: var(--card);
-      color: var(--text);
-    }
-
-    input[type="text"] { flex: 1; min-width: 0; }
-
-    input[type="number"] {
-      width: 64px;
-      text-align: center;
-      padding: 14px 6px;
-    }
-
-    input:focus { border-color: var(--accent); }
-
-    button.add {
-      padding: 14px 18px;
-      font-size: 1rem;
-      font-weight: 600;
-      border: none;
-      border-radius: 10px;
+    .progress > div {
+      height: 100%;
+      width: 0%;
       background: var(--accent);
-      color: #fff;
-      cursor: pointer;
+      border-radius: 4px;
+      transition: width 0.3s;
     }
 
-    button.add:active { background: var(--accent-dark); }
-
+    /* ---------- Sections & items ---------- */
     .section-title {
-      font-size: 0.8rem;
+      font-size: 0.78rem;
       font-weight: 600;
       text-transform: uppercase;
       letter-spacing: 0.05em;
       color: var(--muted);
-      margin: 16px 4px 8px;
+      margin: 18px 4px 8px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
     }
+
+    .section-title button {
+      border: none;
+      background: none;
+      color: var(--danger);
+      font-size: 0.78rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      cursor: pointer;
+      padding: 4px;
+    }
+
+    ul { list-style: none; }
+
+    li {
+      display: flex;
+      align-items: center;
+      background: var(--card);
+      border-radius: 12px;
+      margin-bottom: 6px;
+      min-height: 56px;
+    }
+
+    .icon {
+      width: 40px;
+      height: 40px;
+      margin-left: 8px;
+      border: none;
+      border-radius: 50%;
+      background: var(--bg);
+      font-size: 1.15rem;
+      cursor: pointer;
+      flex: none;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    li.done .icon { background: var(--accent-soft); }
+
+    .main {
+      flex: 1;
+      min-width: 0;
+      padding: 8px 4px 8px 10px;
+      cursor: pointer;
+      user-select: none;
+      -webkit-user-select: none;
+    }
+
+    .name { font-size: 1rem; word-break: break-word; }
+
+    .meta {
+      font-size: 0.72rem;
+      color: var(--muted);
+      margin-top: 1px;
+    }
+
+    li.done .name { text-decoration: line-through; color: var(--muted); }
+
+    .qty {
+      display: flex;
+      align-items: center;
+      flex: none;
+      margin-right: 6px;
+    }
+
+    .qty button {
+      width: 36px;
+      height: 44px;
+      border: none;
+      background: none;
+      color: var(--muted2);
+      font-size: 1.2rem;
+      cursor: pointer;
+    }
+
+    .qty .n {
+      min-width: 18px;
+      text-align: center;
+      font-size: 0.95rem;
+      font-weight: 600;
+    }
+
+    li.done .qty { visibility: hidden; }
+
+    .empty {
+      text-align: center;
+      color: var(--muted);
+      padding: 48px 0 20px;
+      font-size: 0.95rem;
+      line-height: 1.6;
+    }
+
+    .status {
+      position: fixed;
+      top: 12px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: var(--danger);
+      color: #fff;
+      padding: 8px 16px;
+      border-radius: 8px;
+      font-size: 0.85rem;
+      display: none;
+      z-index: 50;
+    }
+
+    /* ---------- Bottom add bar ---------- */
+    .addbar {
+      position: fixed;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      background: var(--card);
+      border-top: 1px solid var(--border);
+      padding: 10px 14px calc(10px + env(safe-area-inset-bottom));
+      z-index: 20;
+    }
+
+    .addbar-inner { max-width: 480px; margin: 0 auto; }
 
     .chips {
       display: flex;
-      flex-wrap: wrap;
       gap: 8px;
+      overflow-x: auto;
+      padding-bottom: 10px;
+      scrollbar-width: none;
     }
+
+    .chips::-webkit-scrollbar { display: none; }
+
+    .chips:empty { display: none; }
 
     .chip {
       border: none;
@@ -121,129 +235,118 @@
       border-radius: 999px;
       font-size: 0.9rem;
       cursor: pointer;
+      white-space: nowrap;
+      flex: none;
     }
 
-    .chip small { color: var(--muted2); margin-left: 4px; }
+    .addrow { display: flex; gap: 8px; }
 
-    ul { list-style: none; }
-
-    li {
-      display: flex;
-      align-items: center;
-      background: var(--card);
-      border-radius: 10px;
-      margin-bottom: 8px;
-      overflow: hidden;
-    }
-
-    li .main {
+    .addrow input {
       flex: 1;
-      padding: 10px 4px 10px 14px;
-      cursor: pointer;
-      user-select: none;
-      -webkit-user-select: none;
       min-width: 0;
+      padding: 13px 14px;
+      font-size: 1rem;
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      outline: none;
+      background: var(--bg);
+      color: var(--text);
     }
 
-    li .name {
-      font-size: 1.05rem;
-      word-break: break-word;
+    .addrow input:focus { border-color: var(--accent); }
+
+    .addrow button {
+      padding: 13px 20px;
+      font-size: 1rem;
+      font-weight: 600;
+      border: none;
+      border-radius: 12px;
+      background: var(--accent);
+      color: #fff;
+      cursor: pointer;
+      flex: none;
     }
 
-    li .meta {
-      font-size: 0.75rem;
-      color: var(--muted);
-      margin-top: 2px;
+    /* ---------- Category picker ---------- */
+    .modal-overlay {
+      position: fixed;
+      inset: 0;
+      background: var(--overlay);
+      display: none;
+      align-items: flex-end;
+      justify-content: center;
+      z-index: 40;
     }
 
-    li.done .name {
-      text-decoration: line-through;
-      color: var(--muted);
+    .modal-overlay.open { display: flex; }
+
+    .modal {
+      background: var(--card);
+      border-radius: 16px 16px 0 0;
+      padding: 18px 16px calc(18px + env(safe-area-inset-bottom));
+      width: 100%;
+      max-width: 480px;
     }
 
-    .qty {
+    .modal h2 { font-size: 1rem; margin-bottom: 14px; }
+
+    .cat-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 8px;
+    }
+
+    .cat-grid button {
       display: flex;
       align-items: center;
-      gap: 2px;
-    }
-
-    .qty button {
-      border: none;
-      background: none;
-      color: var(--muted2);
-      font-size: 1.15rem;
-      width: 34px;
-      height: 44px;
-      cursor: pointer;
-    }
-
-    .qty .n {
-      min-width: 20px;
-      text-align: center;
-      font-size: 0.95rem;
-      font-weight: 600;
-    }
-
-    li.done .qty { visibility: hidden; }
-
-    li .delete {
-      border: none;
-      background: none;
-      color: var(--danger);
-      font-size: 1.3rem;
-      padding: 10px 14px;
-      cursor: pointer;
-    }
-
-    .clear-done {
-      display: block;
-      margin: 16px auto 0;
-      padding: 10px 18px;
-      font-size: 0.9rem;
+      gap: 8px;
+      padding: 12px;
       border: 1px solid var(--border);
       border-radius: 10px;
-      background: var(--card);
-      color: var(--muted2);
+      background: var(--bg);
+      color: var(--text);
+      font-size: 0.95rem;
       cursor: pointer;
     }
 
-    .empty {
-      text-align: center;
-      color: var(--muted);
-      padding: 32px 0;
-    }
-
-    .status {
-      text-align: center;
-      color: var(--danger);
-      font-size: 0.85rem;
-      padding: 8px 0;
-      display: none;
+    .cat-grid button.active {
+      border-color: var(--accent);
+      background: var(--accent-soft);
     }
   </style>
 </head>
 <body>
-  <div class="container">
-    <h1>🛒 Shopping List</h1>
-    <div class="subtitle" id="subtitle">&nbsp;</div>
-    <div class="status" id="status"></div>
+  <div class="wrap">
+    <header>
+      <h1>🛒 Groceries</h1>
+      <div class="subtitle" id="subtitle"></div>
+      <div class="progress"><div id="progress-fill"></div></div>
+    </header>
 
-    <form id="add-form">
-      <input type="text" id="item-input" placeholder="Add something..." autocomplete="off" maxlength="200" list="suggestions">
-      <datalist id="suggestions"></datalist>
-      <input type="number" id="qty-input" value="1" min="1" max="99" inputmode="numeric" title="How many">
-      <button type="submit" class="add">Add</button>
-    </form>
+    <div id="sections"></div>
 
-    <div id="frequents-section" style="display:none">
-      <div class="section-title">Buy again</div>
-      <div class="chips" id="chips"></div>
-      <div class="section-title">List</div>
+    <div class="empty" id="empty" style="display:none">
+      Your list is empty 🎉<br>Add something below.
     </div>
+  </div>
 
-    <ul id="list"></ul>
-    <div class="empty" id="empty" style="display:none">Nothing to buy 🎉</div>
-    <button class="clear-done" id="clear-done" style="display:none">Clear bought items</button>
+  <div class="status" id="status"></div>
+
+  <div class="addbar">
+    <div class="addbar-inner">
+      <div class="chips" id="chips"></div>
+      <form class="addrow" id="add-form">
+        <input type="text" id="item-input" placeholder="Add groceries..." autocomplete="off" maxlength="200" enterkeyhint="done">
+        <button type="submit">Add</button>
+      </form>
+    </div>
+  </div>
+
+  <div class="modal-overlay" id="cat-overlay">
+    <div class="modal">
+      <h2 id="cat-title">Category</h2>
+      <div class="cat-grid" id="cat-grid"></div>
+    </div>
   </div>
 
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
@@ -255,19 +358,48 @@
 
     const db = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
-    const listEl = document.getElementById("list");
+    const CATEGORIES = [
+      { id: "produce",   label: "Fruit & Veg",  emoji: "🥦" },
+      { id: "dairy",     label: "Dairy & Eggs", emoji: "🥛" },
+      { id: "meat",      label: "Meat & Fish",  emoji: "🍗" },
+      { id: "bakery",    label: "Bakery",       emoji: "🍞" },
+      { id: "frozen",    label: "Frozen",       emoji: "🧊" },
+      { id: "drinks",    label: "Drinks",       emoji: "🧃" },
+      { id: "snacks",    label: "Snacks",       emoji: "🍫" },
+      { id: "pantry",    label: "Pantry",       emoji: "🥫" },
+      { id: "household", label: "Household",    emoji: "🧻" },
+      { id: "other",     label: "Other",        emoji: "🛒" },
+    ];
+
+    const KEYWORDS = {
+      produce: ["apple","banana","tomato","potato","onion","lettuce","salad","carrot","cucumber","pepper","fruit","orange","lemon","lime","garlic","spinach","avocado","grape","berr","mango","zucchini","broccoli","mushroom","ginger","herbs","mint","parsley"],
+      dairy: ["milk","cheese","yogurt","yoghurt","butter","cream","egg","mozzarella","feta","labneh"],
+      meat: ["chicken","beef","meat","fish","salmon","tuna","lamb","sausage","turkey","shrimp","mince","steak"],
+      bakery: ["bread","toast","bun","bagel","croissant","cake","tortilla","pita","baguette"],
+      frozen: ["frozen","ice cream","fries"],
+      drinks: ["water","juice","cola","coke","soda","coffee","tea","drink","beer","wine","energy"],
+      snacks: ["chips","chocolate","candy","cookie","biscuit","cracker","nuts","popcorn","snack","gum"],
+      pantry: ["rice","pasta","flour","sugar","salt","oil","sauce","cereal","bean","lentil","spice","honey","jam","oat","noodle","ketchup","mayo","vinegar","tahini","canned","soup","hummus"],
+      household: ["toilet","paper","soap","shampoo","detergent","cleaner","sponge","trash","bag","tissue","toothpaste","batter","foil","napkin","deodorant","razor"],
+    };
+
+    const catById = id => CATEGORIES.find(c => c.id === id) || CATEGORIES[CATEGORIES.length - 1];
+
+    const sectionsEl = document.getElementById("sections");
     const emptyEl = document.getElementById("empty");
-    const clearBtn = document.getElementById("clear-done");
     const statusEl = document.getElementById("status");
     const subtitleEl = document.getElementById("subtitle");
+    const progressEl = document.getElementById("progress-fill");
     const form = document.getElementById("add-form");
     const input = document.getElementById("item-input");
-    const qtyInput = document.getElementById("qty-input");
     const chipsEl = document.getElementById("chips");
-    const frequentsSection = document.getElementById("frequents-section");
-    const suggestionsEl = document.getElementById("suggestions");
+    const catOverlay = document.getElementById("cat-overlay");
+    const catGrid = document.getElementById("cat-grid");
+    const catTitle = document.getElementById("cat-title");
 
     let items = [];
+    let history = {}; // lowercased name -> { name, count, category }
+    let pickerItem = null;
 
     function showError(msg) {
       statusEl.textContent = msg;
@@ -287,72 +419,154 @@
       return new Date(dateStr).toLocaleDateString();
     }
 
+    function guessCategory(name) {
+      const key = name.trim().toLowerCase();
+      if (history[key]) return history[key].category;
+      for (const [cat, words] of Object.entries(KEYWORDS)) {
+        if (words.some(w => key.includes(w))) return cat;
+      }
+      return "other";
+    }
+
+    /* ---------- Rendering ---------- */
+
+    function makeRow(item) {
+      const li = document.createElement("li");
+      if (item.done) li.classList.add("done");
+
+      const icon = document.createElement("button");
+      icon.className = "icon";
+      icon.textContent = item.done ? "✓" : catById(item.category).emoji;
+      icon.title = "Change category";
+      icon.onclick = () => openPicker(item);
+
+      const main = document.createElement("div");
+      main.className = "main";
+      main.onclick = () => toggleItem(item);
+
+      const name = document.createElement("div");
+      name.className = "name";
+      name.textContent = item.name;
+
+      const meta = document.createElement("div");
+      meta.className = "meta";
+      meta.textContent = "added " + timeAgo(item.created_at);
+
+      main.appendChild(name);
+      main.appendChild(meta);
+
+      const qty = document.createElement("div");
+      qty.className = "qty";
+      const minus = document.createElement("button");
+      minus.textContent = "−";
+      minus.title = "Less (removes at 0)";
+      minus.onclick = () => changeAmount(item, -1);
+      const n = document.createElement("span");
+      n.className = "n";
+      n.textContent = item.amount;
+      const plus = document.createElement("button");
+      plus.textContent = "+";
+      plus.onclick = () => changeAmount(item, 1);
+      qty.appendChild(minus);
+      qty.appendChild(n);
+      qty.appendChild(plus);
+
+      li.appendChild(icon);
+      li.appendChild(main);
+      li.appendChild(qty);
+      return li;
+    }
+
     function render() {
-      listEl.innerHTML = "";
-      for (const item of items) {
-        const li = document.createElement("li");
-        if (item.done) li.classList.add("done");
+      sectionsEl.innerHTML = "";
+      const todo = items.filter(i => !i.done);
+      const done = items.filter(i => i.done);
 
-        const main = document.createElement("div");
-        main.className = "main";
-        main.onclick = () => toggleItem(item);
-
-        const name = document.createElement("div");
-        name.className = "name";
-        name.textContent = item.name;
-
-        const meta = document.createElement("div");
-        meta.className = "meta";
-        meta.textContent = "added " + timeAgo(item.created_at);
-
-        main.appendChild(name);
-        main.appendChild(meta);
-
-        const qty = document.createElement("div");
-        qty.className = "qty";
-        const minus = document.createElement("button");
-        minus.textContent = "−";
-        minus.onclick = () => changeAmount(item, -1);
-        const n = document.createElement("span");
-        n.className = "n";
-        n.textContent = item.amount;
-        const plus = document.createElement("button");
-        plus.textContent = "+";
-        plus.onclick = () => changeAmount(item, 1);
-        qty.appendChild(minus);
-        qty.appendChild(n);
-        qty.appendChild(plus);
-
-        const del = document.createElement("button");
-        del.className = "delete";
-        del.textContent = "✕";
-        del.onclick = () => deleteItem(item);
-
-        li.appendChild(main);
-        li.appendChild(qty);
-        li.appendChild(del);
-        listEl.appendChild(li);
+      for (const cat of CATEGORIES) {
+        const group = todo.filter(i => (i.category || "other") === cat.id);
+        if (!group.length) continue;
+        const title = document.createElement("div");
+        title.className = "section-title";
+        title.textContent = cat.emoji + " " + cat.label;
+        const ul = document.createElement("ul");
+        for (const item of group) ul.appendChild(makeRow(item));
+        sectionsEl.appendChild(title);
+        sectionsEl.appendChild(ul);
       }
 
-      const todo = items.filter(i => !i.done).length;
-      subtitleEl.textContent = todo === 0 ? "All done" : todo + (todo === 1 ? " item to buy" : " items to buy");
+      if (done.length) {
+        const title = document.createElement("div");
+        title.className = "section-title";
+        const span = document.createElement("span");
+        span.textContent = "✓ In the cart (" + done.length + ")";
+        const clear = document.createElement("button");
+        clear.textContent = "Clear";
+        clear.onclick = clearDone;
+        title.appendChild(span);
+        title.appendChild(clear);
+        const ul = document.createElement("ul");
+        for (const item of done) ul.appendChild(makeRow(item));
+        sectionsEl.appendChild(title);
+        sectionsEl.appendChild(ul);
+      }
+
+      subtitleEl.textContent =
+        items.length === 0 ? "" :
+        todo.length === 0 ? "All done — everything's in the cart" :
+        todo.length + " to buy" + (done.length ? " · " + done.length + " in the cart" : "");
+      progressEl.style.width = items.length ? Math.round((done.length / items.length) * 100) + "%" : "0%";
       emptyEl.style.display = items.length ? "none" : "block";
-      clearBtn.style.display = items.some(i => i.done) ? "block" : "none";
     }
+
+    function renderChips(filter) {
+      chipsEl.innerHTML = "";
+      const q = (filter || "").trim().toLowerCase();
+      const activeNames = new Set(items.filter(i => !i.done).map(i => i.name.toLowerCase()));
+      const list = Object.values(history)
+        .filter(h => !activeNames.has(h.name.toLowerCase()))
+        .filter(h => !q || h.name.toLowerCase().includes(q))
+        .sort((a, b) => b.count - a.count)
+        .slice(0, 10);
+      for (const h of list) {
+        const chip = document.createElement("button");
+        chip.type = "button";
+        chip.className = "chip";
+        chip.textContent = catById(h.category).emoji + " " + h.name;
+        // pointerdown so the input doesn't lose focus before the tap registers
+        chip.onpointerdown = (e) => { e.preventDefault(); };
+        chip.onclick = () => { addItem(h.name, 1, h.category); input.value = ""; renderChips(""); };
+        chipsEl.appendChild(chip);
+      }
+    }
+
+    /* ---------- Data ---------- */
 
     async function loadItems() {
       const { data, error } = await db
         .from("items")
         .select("*")
-        .order("done", { ascending: true })
         .order("created_at", { ascending: false });
       if (error) { showError("Could not load list"); return; }
       items = data;
       render();
     }
 
-    async function addItem(name, amount) {
-      // If it's already on the list (not bought yet), bump the quantity instead
+    async function loadHistory() {
+      const { data, error } = await db.from("purchases")
+        .select("name, category")
+        .order("bought_at", { ascending: false })
+        .limit(400);
+      if (error || !data) return;
+      history = {};
+      for (const row of data) {
+        const key = row.name.toLowerCase();
+        if (!history[key]) history[key] = { name: row.name, count: 0, category: row.category || "other" };
+        history[key].count++;
+      }
+      renderChips(input.value);
+    }
+
+    async function addItem(name, amount, category) {
       const existing = items.find(i => !i.done && i.name.toLowerCase() === name.toLowerCase());
       if (existing) {
         const { error } = await db.from("items")
@@ -360,7 +574,8 @@
           .eq("id", existing.id);
         if (error) showError("Could not update item");
       } else {
-        const { error } = await db.from("items").insert({ name, amount });
+        const cat = category || guessCategory(name);
+        const { error } = await db.from("items").insert({ name, amount, category: cat });
         if (error) showError("Could not add item");
       }
       loadItems();
@@ -370,17 +585,22 @@
       e.preventDefault();
       const name = input.value.trim();
       if (!name) return;
-      const amount = Math.max(1, parseInt(qtyInput.value) || 1);
       input.value = "";
-      qtyInput.value = 1;
-      addItem(name, amount);
+      renderChips("");
+      addItem(name, 1);
     };
+
+    input.oninput = () => renderChips(input.value);
 
     async function changeAmount(item, delta) {
       const newAmount = item.amount + delta;
-      if (newAmount < 1) return;
-      const { error } = await db.from("items").update({ amount: newAmount }).eq("id", item.id);
-      if (error) showError("Could not update item");
+      if (newAmount < 1) {
+        const { error } = await db.from("items").delete().eq("id", item.id);
+        if (error) showError("Could not remove item");
+      } else {
+        const { error } = await db.from("items").update({ amount: newAmount }).eq("id", item.id);
+        if (error) showError("Could not update item");
+      }
       loadItems();
     }
 
@@ -388,11 +608,10 @@
       const { error } = await db.from("items").update({ done: !item.done }).eq("id", item.id);
       if (error) { showError("Could not update item"); return; }
 
-      // Keep purchase history for the "Buy again" section
+      // Purchase history powers suggestions and auto-categories
       if (!item.done) {
-        await db.from("purchases").insert({ name: item.name.trim() });
+        await db.from("purchases").insert({ name: item.name.trim(), category: item.category || "other" });
       } else {
-        // Un-marked as bought: remove the most recent history entry for it
         const { data } = await db.from("purchases")
           .select("id").eq("name", item.name.trim())
           .order("bought_at", { ascending: false }).limit(1);
@@ -400,69 +619,56 @@
       }
 
       loadItems();
-      loadFrequents();
+      loadHistory();
     }
 
-    async function deleteItem(item) {
-      const { error } = await db.from("items").delete().eq("id", item.id);
-      if (error) showError("Could not delete item");
-      loadItems();
-    }
-
-    clearBtn.onclick = async () => {
+    async function clearDone() {
       const { error } = await db.from("items").delete().eq("done", true);
       if (error) showError("Could not clear items");
       loadItems();
-    };
-
-    async function loadFrequents() {
-      const { data, error } = await db.from("purchases")
-        .select("name")
-        .order("bought_at", { ascending: false })
-        .limit(300);
-      if (error || !data) return;
-
-      // Count how often each thing was bought
-      const counts = {};
-      for (const row of data) {
-        const key = row.name.toLowerCase();
-        counts[key] = counts[key] || { name: row.name, count: 0 };
-        counts[key].count++;
-      }
-      const top = Object.values(counts)
-        .sort((a, b) => b.count - a.count)
-        .slice(0, 8);
-
-      // Autocomplete suggestions while typing
-      suggestionsEl.innerHTML = "";
-      for (const f of Object.values(counts)) {
-        const opt = document.createElement("option");
-        opt.value = f.name;
-        suggestionsEl.appendChild(opt);
-      }
-
-      // "Buy again" chips
-      chipsEl.innerHTML = "";
-      for (const f of top) {
-        const chip = document.createElement("button");
-        chip.className = "chip";
-        chip.textContent = f.name;
-        const count = document.createElement("small");
-        count.textContent = "×" + f.count;
-        chip.appendChild(count);
-        chip.onclick = () => addItem(f.name, 1);
-        chipsEl.appendChild(chip);
-      }
-      frequentsSection.style.display = top.length ? "block" : "none";
     }
 
-    // Live sync: reload whenever anyone changes the list
+    /* ---------- Category picker ---------- */
+
+    function openPicker(item) {
+      pickerItem = item;
+      catTitle.textContent = "Category for “" + item.name + "”";
+      catGrid.innerHTML = "";
+      for (const cat of CATEGORIES) {
+        const btn = document.createElement("button");
+        btn.textContent = cat.emoji + " " + cat.label;
+        if ((item.category || "other") === cat.id) btn.classList.add("active");
+        btn.onclick = () => setCategory(cat.id);
+        catGrid.appendChild(btn);
+      }
+      catOverlay.classList.add("open");
+    }
+
+    catOverlay.onclick = (e) => {
+      if (e.target === catOverlay) catOverlay.classList.remove("open");
+    };
+
+    async function setCategory(catId) {
+      catOverlay.classList.remove("open");
+      if (!pickerItem) return;
+      const { error } = await db.from("items").update({ category: catId }).eq("id", pickerItem.id);
+      if (error) showError("Could not change category");
+      pickerItem = null;
+      loadItems();
+    }
+
+    /* ---------- Live sync ---------- */
+
     db.channel("items-changes")
-      .on("postgres_changes", { event: "*", schema: "public", table: "items" }, loadItems)
+      .on("postgres_changes", { event: "*", schema: "public", table: "items" }, () => {
+        loadItems();
+        loadHistory();
+      })
       .subscribe();
 
     loadItems();
-    loadFrequents();
+    loadHistory();
+    renderChips("");
   </script>
 </body>
 </html>
