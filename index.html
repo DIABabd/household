@@ -1,0 +1,230 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+  <title>Shopping List</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      background: #f4f4f5;
+      color: #18181b;
+      min-height: 100vh;
+    }
+
+    .container {
+      max-width: 480px;
+      margin: 0 auto;
+      padding: 16px;
+    }
+
+    h1 {
+      font-size: 1.4rem;
+      padding: 12px 4px;
+      text-align: center;
+    }
+
+    form {
+      display: flex;
+      gap: 8px;
+      margin-bottom: 16px;
+    }
+
+    input[type="text"] {
+      flex: 1;
+      padding: 14px;
+      font-size: 1rem;
+      border: 1px solid #d4d4d8;
+      border-radius: 10px;
+      outline: none;
+      background: #fff;
+    }
+
+    input[type="text"]:focus { border-color: #16a34a; }
+
+    button.add {
+      padding: 14px 20px;
+      font-size: 1rem;
+      font-weight: 600;
+      border: none;
+      border-radius: 10px;
+      background: #16a34a;
+      color: #fff;
+      cursor: pointer;
+    }
+
+    button.add:active { background: #15803d; }
+
+    ul { list-style: none; }
+
+    li {
+      display: flex;
+      align-items: center;
+      background: #fff;
+      border-radius: 10px;
+      margin-bottom: 8px;
+      overflow: hidden;
+    }
+
+    li .name {
+      flex: 1;
+      padding: 14px;
+      font-size: 1.05rem;
+      cursor: pointer;
+      user-select: none;
+      -webkit-user-select: none;
+      word-break: break-word;
+    }
+
+    li.done .name {
+      text-decoration: line-through;
+      color: #a1a1aa;
+    }
+
+    li .delete {
+      border: none;
+      background: none;
+      color: #dc2626;
+      font-size: 1.3rem;
+      padding: 14px 16px;
+      cursor: pointer;
+    }
+
+    .clear-done {
+      display: block;
+      margin: 16px auto 0;
+      padding: 10px 18px;
+      font-size: 0.9rem;
+      border: 1px solid #d4d4d8;
+      border-radius: 10px;
+      background: #fff;
+      color: #52525b;
+      cursor: pointer;
+    }
+
+    .empty {
+      text-align: center;
+      color: #a1a1aa;
+      padding: 32px 0;
+    }
+
+    .status {
+      text-align: center;
+      color: #dc2626;
+      font-size: 0.85rem;
+      padding: 8px 0;
+      display: none;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>🛒 Shopping List</h1>
+    <div class="status" id="status"></div>
+    <form id="add-form">
+      <input type="text" id="item-input" placeholder="Add something..." autocomplete="off" maxlength="200">
+      <button type="submit" class="add">Add</button>
+    </form>
+    <ul id="list"></ul>
+    <div class="empty" id="empty" style="display:none">Nothing to buy 🎉</div>
+    <button class="clear-done" id="clear-done" style="display:none">Clear bought items</button>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+  <script>
+    // ====== PASTE YOUR SUPABASE DETAILS HERE ======
+    const SUPABASE_URL = "YOUR_SUPABASE_URL";        // e.g. https://abcdefgh.supabase.co
+    const SUPABASE_ANON_KEY = "YOUR_SUPABASE_ANON_KEY";
+    // ==============================================
+
+    const db = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+    const listEl = document.getElementById("list");
+    const emptyEl = document.getElementById("empty");
+    const clearBtn = document.getElementById("clear-done");
+    const statusEl = document.getElementById("status");
+    const form = document.getElementById("add-form");
+    const input = document.getElementById("item-input");
+
+    let items = [];
+
+    function showError(msg) {
+      statusEl.textContent = msg;
+      statusEl.style.display = "block";
+      setTimeout(() => (statusEl.style.display = "none"), 4000);
+    }
+
+    function render() {
+      listEl.innerHTML = "";
+      for (const item of items) {
+        const li = document.createElement("li");
+        if (item.done) li.classList.add("done");
+
+        const name = document.createElement("span");
+        name.className = "name";
+        name.textContent = item.name;
+        name.onclick = () => toggleItem(item);
+
+        const del = document.createElement("button");
+        del.className = "delete";
+        del.textContent = "✕";
+        del.onclick = () => deleteItem(item);
+
+        li.appendChild(name);
+        li.appendChild(del);
+        listEl.appendChild(li);
+      }
+      emptyEl.style.display = items.length ? "none" : "block";
+      clearBtn.style.display = items.some(i => i.done) ? "block" : "none";
+    }
+
+    async function loadItems() {
+      const { data, error } = await db
+        .from("items")
+        .select("*")
+        .order("done", { ascending: true })
+        .order("created_at", { ascending: false });
+      if (error) { showError("Could not load list"); return; }
+      items = data;
+      render();
+    }
+
+    form.onsubmit = async (e) => {
+      e.preventDefault();
+      const name = input.value.trim();
+      if (!name) return;
+      input.value = "";
+      const { error } = await db.from("items").insert({ name });
+      if (error) showError("Could not add item");
+      loadItems();
+    };
+
+    async function toggleItem(item) {
+      const { error } = await db.from("items").update({ done: !item.done }).eq("id", item.id);
+      if (error) showError("Could not update item");
+      loadItems();
+    }
+
+    async function deleteItem(item) {
+      const { error } = await db.from("items").delete().eq("id", item.id);
+      if (error) showError("Could not delete item");
+      loadItems();
+    }
+
+    clearBtn.onclick = async () => {
+      const { error } = await db.from("items").delete().eq("done", true);
+      if (error) showError("Could not clear items");
+      loadItems();
+    };
+
+    // Live sync: reload whenever anyone changes the list
+    db.channel("items-changes")
+      .on("postgres_changes", { event: "*", schema: "public", table: "items" }, loadItems)
+      .subscribe();
+
+    loadItems();
+  </script>
+</body>
+</html>
